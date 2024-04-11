@@ -15,7 +15,7 @@ export default function Page() {
       {
         // View messages in UI state
         messages.map((message) => (
-          <div key={message.id}>
+          <div className="text-white" key={message.id}>
             {message.display}
           </div>
         ))
@@ -32,23 +32,26 @@ export default function Page() {
             display: <div>{inputValue}</div>,
           },
         ]);
- 
+        
         // Submit and get response message
         const responseMessage = await submitUserMessage(inputValue);
         setMessages((currentMessages) => [
           ...currentMessages,
           responseMessage,
         ]);
- 
+        
         setInputValue('');
       }}>
         <input
+          className="text-black"
           placeholder="Send a message..."
           value={inputValue}
           onChange={(event) => {
             setInputValue(event.target.value)
           }}
         />
+        {console.log(messages)}
+
       </form>
     </div>
   )

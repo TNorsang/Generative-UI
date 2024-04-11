@@ -7,6 +7,8 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAPI_API_KEY,
 })
 
+console.log(" Open AI "+ openai)
+
 // Used when grabbing data.
 function Spinner(){
     return <div>Loading... </div>;
@@ -32,6 +34,76 @@ async function getFlightInfo(flightNumber: string){
         arrival: "San Francisco: JUST TESTING",
     };
 }
+// Create a streaming UI node. You can make as many as you need.
+async function getStockHistoryChart() {
+    'use server';
+   
+    const ui = createStreamableUI(<Spinner />);
+   
+    // We need to wrap this in an async IIFE to avoid blocking. Without it, the UI wouldn't render
+    // while the fetch or LLM call are in progress.
+    (async () => {
+      const price = await callLLM('What is the current stock price of AAPL?');
+   
+      // Show a spinner as the history chart for now.
+      // We won't be updating this again so we use `ui.done()` instead of `ui.update()`.
+      const historyChart = createStreamableUI(<Spinner />);
+      ui.done(<StockCard historyChart={historyChart.value} price={price} />);
+   
+      // Getting the history data and then update that part of the UI.
+      const historyData = await fetch('https://my-stock-data-api.com');
+      historyChart.done(<HistoryChart data={historyData} />);
+    })();
+   
+    return ui;
+  }
+
+async function handleUserMessage(userInput) {
+    'use server';
+    const card = createStreamableUI(<Spinner />);
+   
+    async function getCityWeather() {
+      try {
+        card.update(
+          <>
+            Analyzing...
+            <WeatherCardSkeleton />
+          </>,
+        );
+   
+        // Your customized LLM logic, e.g. tools API.
+        const res = await callLLM(
+          `Return the city name from the user input: ${userInput}`,
+        );
+   
+        const temperature = await getCityTemperature(res.city);
+        card.done(
+          <>
+            Here's the weather of {res.city}:
+            <WeatherCard
+              city={res.city}
+              temperature={temperature}
+              refreshAction={async () => {
+                'use server';
+                return getCityTemperature(res.city);
+              }}
+            />
+          </>,
+        );
+      } catch {
+        card.done(<ErrorCard />);
+        tokenCounter.done(0);
+      }
+    }
+   
+    getCityWeather();
+   
+    return {
+      startedAt: Date.now(),
+      ui: card.value, // Streamed UI value
+      tokens: tokenCounter.value, // Extra meta information.
+    };
+  }
 
 // This is the main function that is to communicate to the AI system.
 async function submitUserMessage(userInput: string) {
