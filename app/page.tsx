@@ -1,9 +1,10 @@
-// Need to use this 'use client' in order to render this in client side
-'use client'
-
+'use client';
+ 
 import { useState } from 'react';
 import { useUIState, useActions } from "ai/rsc";
-import type { AI } from './action';
+import type{ AI } from './action';
+
+
  
 export default function Page() {
   const [inputValue, setInputValue] = useState('');
@@ -15,7 +16,7 @@ export default function Page() {
       {
         // View messages in UI state
         messages.map((message) => (
-          <div className="text-white" key={message.id}>
+          <div key={message.id}>
             {message.display}
           </div>
         ))
@@ -34,12 +35,13 @@ export default function Page() {
         ]);
         
         // Submit and get response message
+
         const responseMessage = await submitUserMessage(inputValue);
         setMessages((currentMessages) => [
           ...currentMessages,
           responseMessage,
         ]);
-        
+ 
         setInputValue('');
       }}>
         <input
@@ -50,8 +52,6 @@ export default function Page() {
             setInputValue(event.target.value)
           }}
         />
-        {console.log(messages)}
-
       </form>
     </div>
   )
