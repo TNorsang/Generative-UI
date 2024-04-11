@@ -1,4 +1,7 @@
- import { useState } from 'react';
+// Need to use this 'use client' in order to render this in client side
+'use client'
+
+import { useState } from 'react';
 import { useUIState, useActions } from "ai/rsc";
 import type { AI } from './action';
  

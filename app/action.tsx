@@ -35,7 +35,7 @@ async function getFlightInfo(flightNumber: string){
 
 // This is the main function that is to communicate to the AI system.
 async function submitUserMessage(userInput: string) {
-    'user server';
+    'use server';
 
     const aiState = getMutableAIState<typeof AI>();
 
